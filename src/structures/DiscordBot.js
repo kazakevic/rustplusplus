@@ -34,6 +34,7 @@ const Logger = require('./Logger.js');
 const PermissionHandler = require('../handlers/permissionHandler.js');
 const RustLabs = require('../structures/RustLabs');
 const RustPlus = require('../structures/RustPlus');
+const TokenDiagnostics = require('../util/tokenDiagnostics.js');
 
 class DiscordBot extends Discord.Client {
     constructor(props) {
@@ -181,8 +182,20 @@ class DiscordBot extends Discord.Client {
                         this.intlGet(null, 'serviceUnavailable', { error: JSON.stringify(error) }), 'error')
                 } break;
 
+                case 'TokenInvalid':
+                case 'TokenMissing': {
+                    this.log(this.intlGet(null, 'errorCap'), `Discord login failed: ` +
+                        `${error.name ?? 'Error'} [${error.code}]: ${error.message ?? ''}`, 'error');
+                    this.log(this.intlGet(null, 'errorCap'),
+                        `Discord token diagnostics: ${TokenDiagnostics.getDiscordTokenDiagnostics()}`, 'error');
+                    this.log(this.intlGet(null, 'errorCap'), `Reset the token at ` +
+                        `https://discord.com/developers/applications -> Bot -> Reset Token`, 'error');
+                } break;
+
                 default: {
-                    this.log(this.intlGet(null, 'errorCap'), `${JSON.stringify(error)}`, 'error');
+                    this.log(this.intlGet(null, 'errorCap'), `Discord login failed: ` +
+                        `${error.name ?? 'Error'} [${error.code ?? 'no code'}]: ` +
+                        `${error.message ?? ''} ${JSON.stringify(error)}`, 'error');
                 } break;
             }
         });
