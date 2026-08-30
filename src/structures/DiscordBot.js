@@ -169,6 +169,15 @@ class DiscordBot extends Discord.Client {
         }, variables);
     }
 
+    formatLoginError(error) {
+        const name = `${error.name ?? 'Error'}`;
+        /* discord.js already embeds the code in the error name, avoid repeating it. */
+        const code = (error.code === undefined || name.includes(`${error.code}`)) ? '' : ` [${error.code}]`;
+        const message = error.message ? `: ${error.message}` : `: ${JSON.stringify(error)}`;
+
+        return `${name}${code}${message}`;
+    }
+
     build() {
         this.login(Config.discord.token).catch(error => {
             switch (error.code) {
@@ -184,8 +193,8 @@ class DiscordBot extends Discord.Client {
 
                 case 'TokenInvalid':
                 case 'TokenMissing': {
-                    this.log(this.intlGet(null, 'errorCap'), `Discord login failed: ` +
-                        `${error.name ?? 'Error'} [${error.code}]: ${error.message ?? ''}`, 'error');
+                    this.log(this.intlGet(null, 'errorCap'),
+                        `Discord login failed: ${this.formatLoginError(error)}`, 'error');
                     this.log(this.intlGet(null, 'errorCap'),
                         `Discord token diagnostics: ${TokenDiagnostics.getDiscordTokenDiagnostics()}`, 'error');
                     this.log(this.intlGet(null, 'errorCap'), `Reset the token at ` +
@@ -193,9 +202,8 @@ class DiscordBot extends Discord.Client {
                 } break;
 
                 default: {
-                    this.log(this.intlGet(null, 'errorCap'), `Discord login failed: ` +
-                        `${error.name ?? 'Error'} [${error.code ?? 'no code'}]: ` +
-                        `${error.message ?? ''} ${JSON.stringify(error)}`, 'error');
+                    this.log(this.intlGet(null, 'errorCap'),
+                        `Discord login failed: ${this.formatLoginError(error)}`, 'error');
                 } break;
             }
         });
