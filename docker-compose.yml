@@ -7,8 +7,13 @@ services:
             - ./logs:/app/logs
             - ./maps:/app/maps
         environment:
-            - RPP_DISCORD_CLIENT_ID=111....1111
-            - RPP_DISCORD_TOKEN=token
+            # Set these in the deployment environment (Dokploy project environment
+            # variables, or a .env file next to this compose file). The :? makes a
+            # missing value fail the deploy instead of silently starting the bot
+            # with an invalid token.
+            - RPP_DISCORD_CLIENT_ID=${RPP_DISCORD_CLIENT_ID:?RPP_DISCORD_CLIENT_ID is not set}
+            - RPP_DISCORD_TOKEN=${RPP_DISCORD_TOKEN:?RPP_DISCORD_TOKEN is not set}
+            - RPP_BATTLEMETRICS_TOKEN=${RPP_BATTLEMETRICS_TOKEN:-}
         container_name: rpp
         build:
             context: .
