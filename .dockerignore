@@ -1,2 +1,11 @@
-docs/
-node_modules/
+.git
+.gitignore
+node_modules
+dist
+
+# Runtime state, bind mounted from the host at run time. Keeping it out of the
+# build context stops credentials ending up in an image layer.
+credentials
+instances
+logs
+maps
